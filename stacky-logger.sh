@@ -32,9 +32,8 @@ do
     then
       mkdir ${TENANT}/${SERVICE}
     fi
-  echo "INFO: Logs for Tenant: ${TENANT} for Service: ${SERVICE} on ${DATE}"> ${TENANT}/${SERVICE}/${DATE}.log
-  echo "INFO: Nova Events:">> ${TENANT}/${SERVICE}/${DATE}.log
-  python stacky.py search nova tenant ${TENANT}>> ${TENANT}/${SERVICE}/${DATE}.log
+    echo "INFO: Logs for Tenant: ${TENANT} for Service: ${SERVICE} on ${DATE}"> ${TENANT}/${SERVICE}/${DATE}.log
+    python stacky.py search nova tenant ${TENANT}>> ${TENANT}/${SERVICE}/${DATE}.log
     for EVENT in $(python stacky.py search nova tenant ${TENANT} | awk '{ print $2 }')
     do
       echo "INFO: Nova Event ${EVENT}:">> ${TENANT}/${SERVICE}/${DATE}.log
