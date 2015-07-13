@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # script to grab events out of the stacktach database
 # Written by Vinny Valdez <vvaldez@redhat.com>
@@ -19,25 +19,20 @@
 TENANTS="d50ea282853e4f16938d70c3c1d1e1cd e63bb450e0f44df2adf586852f87861c 2cee3e9e29dd4e8eb125dc0d5daede06"
 SERVICES="nova glance"
 DATE=$(date +%F)
+STACKTACH_URL=http://10.12.36.12/
 
 for TENANT in ${TENANTS}
 do
-  if [ ! -d ${TENANT} ]
-  then
-    mkdir ${TENANT}
-  fi
   for SERVICE in ${SERVICES}
   do
-    if [ ! -d ${SERVICE} ]
+    if [ ! -d logs/${SERVICE} ]
     then
-      mkdir ${TENANT}/${SERVICE}
+      mkdir -p logs/${TENANT}/${SERVICE}
     fi
-    echo "INFO: Logs for Tenant: ${TENANT} for Service: ${SERVICE} on ${DATE}"> ${TENANT}/${SERVICE}/${DATE}.log
-    python stacky.py search nova tenant ${TENANT}>> ${TENANT}/${SERVICE}/${DATE}.log
-    for EVENT in $(python stacky.py search nova tenant ${TENANT} | awk '{ print $2 }')
+    for EVENT in $(python stacky.py search nova tenant ${TENANT} | awk '{ print $2 }' | grep [0-9]$)
     do
-      echo "INFO: Nova Event ${EVENT}:">> ${TENANT}/${SERVICE}/${DATE}.log
-      python stacky.py show ${EVENT}>> ${TENANT}/${SERVICE}/${DATE}.log
+      echo "INFO: Writing event ${EVENT} for ${SERVICE} on tenant ${TENANT} to logs/${TENANT}/${SERVICE}/${DATE}.log"
+      python stacky.py show ${EVENT} | grep -ve "|" -ve "+">> logs/${TENANT}/${SERVICE}/${DATE}.log
     done
   done
 done
